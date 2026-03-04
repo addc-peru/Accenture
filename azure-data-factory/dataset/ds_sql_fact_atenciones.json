@@ -1,0 +1,74 @@
+{
+	"name": "ds_sql_fact_atenciones",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_sql_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Datasets Atenciones"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "numero_ticket",
+				"type": "varchar"
+			},
+			{
+				"name": "estado",
+				"type": "varchar"
+			},
+			{
+				"name": "fecha_creacion",
+				"type": "date"
+			},
+			{
+				"name": "fecha_cierre",
+				"type": "date"
+			},
+			{
+				"name": "agencia_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "item",
+				"type": "nvarchar"
+			},
+			{
+				"name": "atencion_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "tipo_atencion",
+				"type": "varchar"
+			},
+			{
+				"name": "proveedor",
+				"type": "nvarchar"
+			},
+			{
+				"name": "costo_atencion",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "zona",
+				"type": "varchar"
+			},
+			{
+				"name": "fecha_carga",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "fact_atenciones"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -2,18 +2,55 @@
 	"name": "ds_github_tickets_provincia",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Cnx_Github",
+			"referenceName": "Cnx_github",
 			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Datasets Atenciones"
 		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "Tickets/Provincia.json"
+				"relativeUrl": "Provincia.json"
 			}
 		},
-		"schema": {}
+		"schema": {
+			"type": "object",
+			"properties": {
+				"NumeroTicket": {
+					"type": "string"
+				},
+				"ItemID": {
+					"type": "integer"
+				},
+				"Item": {
+					"type": "string"
+				},
+				"FechaCreacion": {
+					"type": "string"
+				},
+				"FechaTermino": {
+					"type": "string"
+				},
+				"FechaCierre": {
+					"type": "string"
+				},
+				"Resumen": {
+					"type": "string"
+				},
+				"Ubicacion": {
+					"type": "string"
+				},
+				"ModoReporte": {
+					"type": "string"
+				},
+				"Estado": {
+					"type": "string"
+				}
+			}
+		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }

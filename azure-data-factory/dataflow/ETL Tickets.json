@@ -1,6 +1,9 @@
 {
 	"name": "ETL Tickets",
 	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [
@@ -9,14 +12,14 @@
 						"referenceName": "ds_adls_tickets_lima",
 						"type": "DatasetReference"
 					},
-					"name": "TicketsLimaCSV"
+					"name": "TicketsLima"
 				},
 				{
 					"dataset": {
 						"referenceName": "ds_adls_tickets_provincia",
 						"type": "DatasetReference"
 					},
-					"name": "TicketsProvinciaJSON"
+					"name": "TicketsProvincia"
 				}
 			],
 			"sinks": [
@@ -26,42 +29,23 @@
 						"type": "DatasetReference"
 					},
 					"name": "TicketsParquet"
-				},
-				{
-					"dataset": {
-						"referenceName": "ds_adls_item_parquet",
-						"type": "DatasetReference"
-					},
-					"name": "ItemParquet"
 				}
 			],
 			"transformations": [
 				{
-					"name": "AsingarTipoDato"
+					"name": "AsignarTipoDato"
 				},
 				{
 					"name": "SeleccionarColumnas"
 				},
 				{
-					"name": "AnexarDatasets"
+					"name": "UnirDatasets"
 				},
 				{
 					"name": "ColumnasCalculadas"
 				},
 				{
 					"name": "ColumnasUtiles"
-				},
-				{
-					"name": "QuitarItemIDNulos"
-				},
-				{
-					"name": "EtiquetarDatos"
-				},
-				{
-					"name": "ManterUltimoRegistro"
-				},
-				{
-					"name": "ColumnasUtilesItem"
 				}
 			],
 			"scriptLines": [
@@ -80,9 +64,9 @@
 				"          Region as string,",
 				"          FechaImportacion as string",
 				"     ),",
-				"     allowSchemaDrift: false,",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> TicketsLimaCSV",
+				"     ignoreNoFilesFound: false) ~> TicketsLima",
 				"source(output(",
 				"          NumeroTicket as string,",
 				"          ItemID as integer,",
@@ -100,14 +84,14 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'documentPerLine') ~> TicketsProvinciaJSON",
-				"TicketsProvinciaJSON cast(output(",
+				"     documentForm: 'documentPerLine') ~> TicketsProvincia",
+				"TicketsProvincia cast(output(",
 				"          FechaCreacion as date 'yyyy-MM-dd',",
 				"          FechaTermino as date 'dd/MM/yyyy',",
 				"          FechaCierre as date 'dd-MM-yy'",
 				"     ),",
-				"     errors: true) ~> AsingarTipoDato",
-				"TicketsLimaCSV select(mapColumn(",
+				"     errors: true) ~> AsignarTipoDato",
+				"TicketsLima select(mapColumn(",
 				"          NumeroTicket = {Numero Ticket},",
 				"          ItemID,",
 				"          Item,",
@@ -121,38 +105,28 @@
 				"          Region,",
 				"          FechaImportacion",
 				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnas",
-				"SeleccionarColumnas, AsingarTipoDato union(byName: true)~> AnexarDatasets",
-				"AnexarDatasets derive(fecha_cierre = coalesce(FechaTermino, FechaCierre),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> SeleccionarColumnas",
+				"SeleccionarColumnas, AsignarTipoDato union(byName: true)~> UnirDatasets",
+				"UnirDatasets derive(fecha_cierre = coalesce(FechaTermino, FechaCierre),",
 				"          estado = iif(Estado == \"Terminado\", \"Cerrado\", Estado),",
-				"          agencia_id = toInteger(trim( substringIndex(Ubicacion, \"-\", -1) )),",
+				"          agencia_id = toInteger(trim(substringIndex(Ubicacion, \"-\", -1))),",
 				"          fecha_carga = currentUTC()) ~> ColumnasCalculadas",
 				"ColumnasCalculadas select(mapColumn(",
 				"          numero_ticket = NumeroTicket,",
 				"          agencia_id,",
 				"          fecha_creacion = FechaCreacion,",
 				"          fecha_cierre,",
-				"          estado = ColumnasCalculadas@estado,",
-				"          resumen = Resumen,",
+				"          item = Item,",
 				"          item_id = ItemID,",
+				"          resumen = Resumen,",
 				"          modo_reporte = ModoReporte,",
 				"          region = Region,",
+				"          estado = ColumnasCalculadas@estado,",
 				"          fecha_carga",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
-				"AnexarDatasets filter(not(isNull(ItemID))) ~> QuitarItemIDNulos",
-				"QuitarItemIDNulos window(over(ItemID),",
-				"     desc(FechaCreacion, true),",
-				"     ranking = rowNumber()) ~> EtiquetarDatos",
-				"EtiquetarDatos filter(ranking == 1) ~> ManterUltimoRegistro",
-				"ManterUltimoRegistro select(mapColumn(",
-				"          item_id = ItemID,",
-				"          nombre = Item",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> ColumnasUtilesItem",
 				"ColumnasUtiles sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -160,11 +134,12 @@
 				"          agencia_id as integer,",
 				"          fecha_creacion as date,",
 				"          fecha_cierre as date,",
-				"          estado as string,",
-				"          resumen as string,",
+				"          item as string,",
 				"          item_id as integer,",
+				"          resumen as string,",
 				"          modo_reporte as string,",
 				"          region as string,",
+				"          estado as string,",
 				"          fecha_carga as timestamp",
 				"     ),",
 				"     format: 'parquet',",
@@ -174,21 +149,7 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> TicketsParquet",
-				"ColumnasUtilesItem sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     input(",
-				"          item_id as integer,",
-				"          nombre as string",
-				"     ),",
-				"     format: 'parquet',",
-				"     partitionFileNames:['Item.parquet'],",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> ItemParquet"
+				"     partitionBy('hash', 1)) ~> TicketsParquet"
 			]
 		}
 	}

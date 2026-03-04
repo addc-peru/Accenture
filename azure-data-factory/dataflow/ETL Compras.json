@@ -1,0 +1,161 @@
+{
+	"name": "ETL Compras",
+	"properties": {
+		"folder": {
+			"name": "Dataflow Sales Store"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_compras_presencial",
+						"type": "DatasetReference"
+					},
+					"name": "ComprasPresencial"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_compras_online",
+						"type": "DatasetReference"
+					},
+					"name": "ComprasOnline"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_compras_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ComparParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AsignarTipoDato"
+				},
+				{
+					"name": "SeleccionarColumnas"
+				},
+				{
+					"name": "UnirDatasets"
+				},
+				{
+					"name": "ColumnasCalculadas"
+				},
+				{
+					"name": "ColumnasUtiles"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          VentaID as integer,",
+				"          Factura as string,",
+				"          Fecha_Orden as date 'yyyy-MM-dd',",
+				"          Fecha_Entrega as date 'dd/MM/yyyy',",
+				"          Fecha_Envio as date 'dd-MM-yy',",
+				"          Estado as string,",
+				"          Cliente_Code as string,",
+				"          Tipo_Cliente as string,",
+				"          Nombres as string,",
+				"          Apellidos as string,",
+				"          Vendedor as string,",
+				"          Departamento as string,",
+				"          Metodo_Pago as string,",
+				"          Subtotal as string,",
+				"          tipo_compra as string,",
+				"          fecha_importacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ComprasPresencial",
+				"source(output(",
+				"          VentaID as string,",
+				"          Factura as string,",
+				"          FechaOrden as string,",
+				"          FechaEntrega as string,",
+				"          FechaEnvio as string,",
+				"          Estado as string,",
+				"          ClienteCode as string,",
+				"          TipoCliente as string,",
+				"          Nombres as string,",
+				"          Apellidos as string,",
+				"          Vendedor as string,",
+				"          Departamento as string,",
+				"          MetodoPago as string,",
+				"          tipo_compra as string,",
+				"          fecha_importacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> ComprasOnline",
+				"ComprasOnline cast(output(",
+				"          VentaID as integer,",
+				"          FechaOrden as date 'yyyy-MM-dd',",
+				"          FechaEntrega as date 'dd/MM/yyyy',",
+				"          FechaEnvio as date 'dd-MM-yy'",
+				"     ),",
+				"     errors: true) ~> AsignarTipoDato",
+				"ComprasPresencial select(mapColumn(",
+				"          VentaID,",
+				"          Factura,",
+				"          FechaOrden = Fecha_Orden,",
+				"          FechaEntrega = Fecha_Entrega,",
+				"          FechaEnvio = Fecha_Envio,",
+				"          Estado,",
+				"          ClienteCode = Cliente_Code,",
+				"          TipoCliente = Tipo_Cliente,",
+				"          Nombres,",
+				"          Apellidos,",
+				"          Vendedor,",
+				"          Departamento,",
+				"          MetodoPago = Metodo_Pago,",
+				"          tipo_compra,",
+				"          fecha_importacion",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnas",
+				"SeleccionarColumnas, AsignarTipoDato union(byName: true)~> UnirDatasets",
+				"UnirDatasets derive(cliente_id = toInteger(trim(substringIndex(ClienteCode, \"-\", 1))),",
+				"          nombre_cliente = concat(Nombres, \" \", Apellidos),",
+				"          estado = iif(equals(Estado, \"1\"), \"Creado\",\r",
+				"iif(equals(Estado, \"2\"), \"En Curso\",\r",
+				"iif(equals(Estado, \"3\"), \"Programado\",\r",
+				"iif(equals(Estado, \"4\"), \"Cancelado\",\r",
+				"iif(equals(Estado, \"5\"), \"Entregado\",\r",
+				"\"No Definido\"))))),",
+				"          fecha_hora_carga = currentUTC()) ~> ColumnasCalculadas",
+				"ColumnasCalculadas select(mapColumn(",
+				"          venta_id = VentaID,",
+				"          factura = Factura,",
+				"          fecha_orden = FechaOrden,",
+				"          fecha_entrega = FechaEntrega,",
+				"          fecha_envio = FechaEnvio,",
+				"          estado = ColumnasCalculadas@estado,",
+				"          cliente_id,",
+				"          nombre_cliente,",
+				"          tipo_cliente = TipoCliente,",
+				"          vendedor = Vendedor,",
+				"          departamento = Departamento,",
+				"          metodo_pago = MetodoPago,",
+				"          tipo_compra,",
+				"          fecha_hora_carga",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"ColumnasUtiles sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Compras.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ComparParquet"
+			]
+		}
+	}
+}

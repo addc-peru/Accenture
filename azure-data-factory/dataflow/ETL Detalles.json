@@ -1,0 +1,88 @@
+{
+	"name": "ETL Detalles",
+	"properties": {
+		"folder": {
+			"name": "Dataflow Sales Store"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_detalle_compras",
+						"type": "DatasetReference"
+					},
+					"name": "BaseDetalles"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_detalles_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "DetallesParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarColumnas"
+				},
+				{
+					"name": "ColumnasCalculadas"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Detalle_ID as integer,",
+				"          Factura as string,",
+				"          Num_Tracking as string,",
+				"          Categoria as string,",
+				"          Subcategoria as string,",
+				"          Producto_ID as integer,",
+				"          Producto as string,",
+				"          Unidades as integer,",
+				"          Precio_Unitario as double,",
+				"          Oferta_ID as integer,",
+				"          nombre_archivo as string,",
+				"          fecha_importacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     wildcardPaths:['*.csv']) ~> BaseDetalles",
+				"ColumnasCalculadas select(mapColumn(",
+				"          detalle_id = Detalle_ID,",
+				"          tienda,",
+				"          factura = BaseDetalles@Factura,",
+				"          num_tracking = Num_Tracking,",
+				"          categoria = Categoria,",
+				"          subcategoria = Subcategoria,",
+				"          producto_id = Producto_ID,",
+				"          producto = Producto,",
+				"          unidades = Unidades,",
+				"          precio_unitario = Precio_Unitario,",
+				"          subtotal,",
+				"          oferta_id = Oferta_ID,",
+				"          fecha_hora_carga",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnas",
+				"BaseDetalles derive(factura = upper(trim(Factura)),",
+				"          subtotal = round(Unidades * Precio_Unitario, 4),",
+				"          tienda = trim(substringIndex(nombre_archivo, \".\", 1)),",
+				"          fecha_hora_carga = currentUTC()) ~> ColumnasCalculadas",
+				"SeleccionarColumnas sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Detalles.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> DetallesParquet"
+			]
+		}
+	}
+}

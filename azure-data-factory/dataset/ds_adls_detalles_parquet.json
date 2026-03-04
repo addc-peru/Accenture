@@ -1,0 +1,25 @@
+{
+	"name": "ds_adls_detalles_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_sales_store",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Dataset Sales Store"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Detalles.parquet",
+				"folderPath": "silver",
+				"fileSystem": "sales-store"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

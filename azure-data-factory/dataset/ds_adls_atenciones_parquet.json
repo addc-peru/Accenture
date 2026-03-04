@@ -5,14 +5,17 @@
 			"referenceName": "Cnx_adls_accenture",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Datasets Atenciones"
+		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Atenciones.parquet",
-				"folderPath": "silver",
-				"fileSystem": "accenture"
+				"folderPath": "atenciones",
+				"fileSystem": "silver-layer"
 			},
 			"compressionCodec": "snappy"
 		},
@@ -23,6 +26,10 @@
 			},
 			{
 				"name": "numero_ticket",
+				"type": "UTF8"
+			},
+			{
+				"name": "semana_visita",
 				"type": "UTF8"
 			},
 			{
@@ -39,7 +46,7 @@
 			},
 			{
 				"name": "unidades",
-				"type": "UTF8"
+				"type": "INT32"
 			},
 			{
 				"name": "costo_atencion",

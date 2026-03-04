@@ -1,5 +1,5 @@
 {
-	"name": "ds_adls_tickets_parquet",
+	"name": "ds_adls_fact_atenciones",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Cnx_adls_accenture",
@@ -13,9 +13,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "Tickets.parquet",
-				"folderPath": "tickets",
-				"fileSystem": "silver-layer"
+				"fileName": "FactAtenciones.parquet",
+				"fileSystem": "gold-layer"
 			},
 			"compressionCodec": "snappy"
 		},
@@ -25,8 +24,8 @@
 				"type": "UTF8"
 			},
 			{
-				"name": "agencia_id",
-				"type": "INT32"
+				"name": "estado",
+				"type": "UTF8"
 			},
 			{
 				"name": "fecha_creacion",
@@ -37,27 +36,31 @@
 				"type": "DATE"
 			},
 			{
+				"name": "agencia_id",
+				"type": "INT32"
+			},
+			{
 				"name": "item",
 				"type": "UTF8"
 			},
 			{
-				"name": "item_id",
+				"name": "atencion_id",
 				"type": "INT32"
 			},
 			{
-				"name": "resumen",
+				"name": "tipo_atencion",
 				"type": "UTF8"
 			},
 			{
-				"name": "modo_reporte",
+				"name": "proveedor",
 				"type": "UTF8"
 			},
 			{
-				"name": "region",
-				"type": "UTF8"
+				"name": "costo_atencion",
+				"type": "FLOAT"
 			},
 			{
-				"name": "estado",
+				"name": "zona",
 				"type": "UTF8"
 			},
 			{

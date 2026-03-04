@@ -1,0 +1,184 @@
+{
+	"name": "ETL FactAtenciones_Incremental",
+	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Tickets"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_atenciones_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Atenciones"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_fact_atenciones",
+						"type": "DatasetReference"
+					},
+					"name": "FactAtenciones"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_fact_atenciones",
+						"type": "DatasetReference"
+					},
+					"name": "FactAtencionesParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "JoinTicketsAtenciones"
+				},
+				{
+					"name": "ColumnasUtiles"
+				},
+				{
+					"name": "ColumnasAdicionales"
+				},
+				{
+					"name": "Filtrar60Dias"
+				},
+				{
+					"name": "ValidarCarga"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     FechaInicio as string (\"2024-10-15\")",
+				"}",
+				"source(output(",
+				"          numero_ticket as string,",
+				"          agencia_id as integer,",
+				"          fecha_creacion as date,",
+				"          fecha_cierre as date,",
+				"          item as string,",
+				"          item_id as integer,",
+				"          resumen as string,",
+				"          modo_reporte as string,",
+				"          region as string,",
+				"          estado as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Tickets",
+				"source(output(",
+				"          atencion_id as integer,",
+				"          numero_ticket as string,",
+				"          semana_visita as string,",
+				"          tipo_atencion as string,",
+				"          proveedor_id as integer,",
+				"          proveedor as string,",
+				"          unidades as integer,",
+				"          costo_atencion as float,",
+				"          numero_os_oc as string,",
+				"          codigo_conformidad as string,",
+				"          zona as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Atenciones",
+				"Filtrar60Dias, Atenciones join(Tickets@numero_ticket == Atenciones@numero_ticket,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinTicketsAtenciones",
+				"JoinTicketsAtenciones select(mapColumn(",
+				"          numero_ticket = Tickets@numero_ticket,",
+				"          estado,",
+				"          fecha_creacion,",
+				"          fecha_cierre,",
+				"          agencia_id,",
+				"          item,",
+				"          atencion_id,",
+				"          tipo_atencion,",
+				"          proveedor,",
+				"          costo_atencion,",
+				"          zona",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"ColumnasUtiles derive(fecha_carga = currentUTC()) ~> ColumnasAdicionales",
+				"Tickets filter(fecha_creacion >=  toDate($FechaInicio, \"yyyy-MM-dd\")) ~> Filtrar60Dias",
+				"ColumnasAdicionales alterRow(upsertIf(true())) ~> ValidarCarga",
+				"ValidarCarga sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          numero_ticket as string,",
+				"          estado as string,",
+				"          fecha_creacion as date,",
+				"          fecha_cierre as date,",
+				"          agencia_id as integer,",
+				"          item as string,",
+				"          atencion_id as integer,",
+				"          tipo_atencion as string,",
+				"          proveedor as string,",
+				"          costo_atencion as double,",
+				"          zona as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['atencion_id'],",
+				"     format: 'table',",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          numero_ticket,",
+				"          estado,",
+				"          fecha_creacion,",
+				"          fecha_cierre,",
+				"          agencia_id,",
+				"          item,",
+				"          atencion_id,",
+				"          tipo_atencion,",
+				"          proveedor,",
+				"          costo_atencion,",
+				"          zona,",
+				"          fecha_carga",
+				"     )) ~> FactAtenciones",
+				"ColumnasAdicionales sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          numero_ticket as string,",
+				"          estado as string,",
+				"          fecha_creacion as date,",
+				"          fecha_cierre as date,",
+				"          agencia_id as integer,",
+				"          item as string,",
+				"          atencion_id as integer,",
+				"          tipo_atencion as string,",
+				"          proveedor as string,",
+				"          costo_atencion as float,",
+				"          zona as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['FactAtenciones.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> FactAtencionesParquet"
+			]
+		}
+	}
+}

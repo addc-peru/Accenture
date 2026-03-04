@@ -1,60 +1,69 @@
 {
-	"name": "ds_adls_tickets_provincia",
+	"name": "ds_adls_compras_online",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Cnx_adls_accenture",
+			"referenceName": "Cnx_adls_sales_store",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "Datasets Atenciones"
+			"name": "Dataset Sales Store"
 		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "Provincia.json",
-				"folderPath": "tickets",
-				"fileSystem": "bronze-layer"
+				"fileName": "Online.json",
+				"folderPath": "bronze/compras",
+				"fileSystem": "sales-store"
 			}
 		},
 		"schema": {
 			"type": "object",
 			"properties": {
-				"NumeroTicket": {
+				"VentaID": {
 					"type": "string"
 				},
-				"ItemID": {
-					"type": "integer"
-				},
-				"Item": {
+				"Factura": {
 					"type": "string"
 				},
-				"FechaCreacion": {
+				"FechaOrden": {
 					"type": "string"
 				},
-				"FechaTermino": {
+				"FechaEntrega": {
 					"type": "string"
 				},
-				"FechaCierre": {
-					"type": "string"
-				},
-				"Resumen": {
-					"type": "string"
-				},
-				"Ubicacion": {
-					"type": "string"
-				},
-				"ModoReporte": {
+				"FechaEnvio": {
 					"type": "string"
 				},
 				"Estado": {
 					"type": "string"
 				},
-				"Region": {
+				"ClienteCode": {
 					"type": "string"
 				},
-				"FechaImportacion": {
+				"TipoCliente": {
+					"type": "string"
+				},
+				"Nombres": {
+					"type": "string"
+				},
+				"Apellidos": {
+					"type": "string"
+				},
+				"Vendedor": {
+					"type": "string"
+				},
+				"Departamento": {
+					"type": "string"
+				},
+				"MetodoPago": {
+					"type": "string"
+				},
+				"tipo_compra": {
+					"type": "string"
+				},
+				"fecha_importacion": {
 					"type": "string"
 				}
 			}

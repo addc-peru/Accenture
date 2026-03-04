@@ -2,22 +2,70 @@
 	"name": "ds_github_tickets_lima",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Cnx_Github",
+			"referenceName": "Cnx_github",
 			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Datasets Atenciones"
 		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "Tickets/Lima.csv"
+				"relativeUrl": "Lima.csv"
 			},
 			"columnDelimiter": ";",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": ""
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "Numero Ticket",
+				"type": "String"
+			},
+			{
+				"name": "ItemID",
+				"type": "String"
+			},
+			{
+				"name": "Item",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Creacion",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Termino",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Cierre",
+				"type": "String"
+			},
+			{
+				"name": "Resumen",
+				"type": "String"
+			},
+			{
+				"name": "Ubicacion",
+				"type": "String"
+			},
+			{
+				"name": "Modo Reporte",
+				"type": "String"
+			},
+			{
+				"name": "Estado",
+				"type": "String"
+			},
+			{
+				"name": "Prioridad",
+				"type": "String"
+			}
+		]
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }

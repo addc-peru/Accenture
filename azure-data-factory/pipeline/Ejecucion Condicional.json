@@ -1,0 +1,140 @@
+{
+	"name": "Ejecucion Condicional",
+	"properties": {
+		"activities": [
+			{
+				"name": "Tipo de Archivo",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@endswith(pipeline().parameters.FileName, '.csv')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Copiar JSONS",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_adls_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"FolderName": "landing",
+										"FileName": {
+											"value": "@pipeline().parameters.FileName",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adls_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"FolderName": "bronze",
+										"FileName": {
+											"value": "@pipeline().parameters.FileName",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "ETL Tiendas",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "CopiarCsvTiendas",
+									"type": "DataFlowReference",
+									"parameters": {
+										"FileName": {
+											"value": "'@{pipeline().parameters.FileName}'",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"BaseTiendasLanding": {
+											"FolderName": "landing",
+											"FileName": {
+												"value": "@pipeline().parameters.FileName",
+												"type": "Expression"
+											}
+										},
+										"BaseTiendasBronze": {
+											"FolderName": "bronze",
+											"FileName": {
+												"value": "@pipeline().parameters.FileName",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"FileName": {
+				"type": "string",
+				"defaultValue": "Tienda Walmart.csv"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-06T03:32:37Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

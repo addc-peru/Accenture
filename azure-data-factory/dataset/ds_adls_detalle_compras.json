@@ -1,20 +1,30 @@
 {
-	"name": "ds_adls_atenciones",
+	"name": "ds_adls_detalle_compras",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Cnx_adls_accenture",
+			"referenceName": "Cnx_adls_sales_store",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"FileName": {
+				"type": "string",
+				"defaultValue": "Amazon.csv"
+			}
+		},
 		"folder": {
-			"name": "Datasets Atenciones"
+			"name": "Dataset Sales Store"
 		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "atenciones",
-				"fileSystem": "bronze-layer"
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				},
+				"folderPath": "bronze/detalles",
+				"fileSystem": "sales-store"
 			},
 			"columnDelimiter": "|",
 			"escapeChar": "\\",
@@ -23,31 +33,31 @@
 		},
 		"schema": [
 			{
-				"name": "AtencionID",
+				"name": "Detalle_ID",
 				"type": "String"
 			},
 			{
-				"name": "Numero Ticket",
+				"name": "Factura",
 				"type": "String"
 			},
 			{
-				"name": "Agencia",
+				"name": "Num_Tracking",
 				"type": "String"
 			},
 			{
-				"name": "Semana Visita",
+				"name": "Categoria",
 				"type": "String"
 			},
 			{
-				"name": "Tipo Atencion",
+				"name": "Subcategoria",
 				"type": "String"
 			},
 			{
-				"name": "ProveedorID",
+				"name": "Producto_ID",
 				"type": "String"
 			},
 			{
-				"name": "Proveedor",
+				"name": "Producto",
 				"type": "String"
 			},
 			{
@@ -55,23 +65,19 @@
 				"type": "String"
 			},
 			{
-				"name": "Costo Atencion",
+				"name": "Precio_Unitario",
 				"type": "String"
 			},
 			{
-				"name": "Numero OS/OC",
+				"name": "Oferta_ID",
 				"type": "String"
 			},
 			{
-				"name": "Codigo Conformidad",
+				"name": "nombre_archivo",
 				"type": "String"
 			},
 			{
-				"name": "Zona",
-				"type": "String"
-			},
-			{
-				"name": "FechaImportacion",
+				"name": "fecha_importacion",
 				"type": "String"
 			}
 		]

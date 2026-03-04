@@ -1,0 +1,22 @@
+{
+	"name": "ds_github_compras_online",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_github_sales_store",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Dataset Sales Store"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "Online.json"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

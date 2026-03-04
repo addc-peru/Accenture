@@ -1,0 +1,26 @@
+{
+	"name": "ds_github_compras_presencial",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_github_sales_store",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Dataset Sales Store"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "Presencial.csv"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": ""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

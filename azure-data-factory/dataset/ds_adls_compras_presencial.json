@@ -1,77 +1,90 @@
 {
-	"name": "ds_adls_atenciones",
+	"name": "ds_adls_compras_presencial",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "Cnx_adls_accenture",
+			"referenceName": "Cnx_adls_sales_store",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "Datasets Atenciones"
+			"name": "Dataset Sales Store"
 		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "atenciones",
-				"fileSystem": "bronze-layer"
+				"fileName": "Presencial.csv",
+				"folderPath": "bronze/compras",
+				"fileSystem": "sales-store"
 			},
-			"columnDelimiter": "|",
+			"columnDelimiter": ";",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": ""
 		},
 		"schema": [
 			{
-				"name": "AtencionID",
+				"name": "VentaID",
 				"type": "String"
 			},
 			{
-				"name": "Numero Ticket",
+				"name": "Factura",
 				"type": "String"
 			},
 			{
-				"name": "Agencia",
+				"name": "Fecha_Orden",
 				"type": "String"
 			},
 			{
-				"name": "Semana Visita",
+				"name": "Fecha_Entrega",
 				"type": "String"
 			},
 			{
-				"name": "Tipo Atencion",
+				"name": "Fecha_Envio",
 				"type": "String"
 			},
 			{
-				"name": "ProveedorID",
+				"name": "Estado",
 				"type": "String"
 			},
 			{
-				"name": "Proveedor",
+				"name": "Cliente_Code",
 				"type": "String"
 			},
 			{
-				"name": "Unidades",
+				"name": "Tipo_Cliente",
 				"type": "String"
 			},
 			{
-				"name": "Costo Atencion",
+				"name": "Nombres",
 				"type": "String"
 			},
 			{
-				"name": "Numero OS/OC",
+				"name": "Apellidos",
 				"type": "String"
 			},
 			{
-				"name": "Codigo Conformidad",
+				"name": "Vendedor",
 				"type": "String"
 			},
 			{
-				"name": "Zona",
+				"name": "Departamento",
 				"type": "String"
 			},
 			{
-				"name": "FechaImportacion",
+				"name": "Metodo_Pago",
+				"type": "String"
+			},
+			{
+				"name": "Subtotal",
+				"type": "String"
+			},
+			{
+				"name": "tipo_compra",
+				"type": "String"
+			},
+			{
+				"name": "fecha_importacion",
 				"type": "String"
 			}
 		]
