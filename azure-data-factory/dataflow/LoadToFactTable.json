@@ -1,0 +1,132 @@
+{
+	"name": "LoadToFactTable",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Tickets"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_atenciones_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Atenciones"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azsql_dimensiones",
+						"type": "DatasetReference"
+					},
+					"name": "FactAtenciones"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CombinarTablas"
+				},
+				{
+					"name": "SeleccionarColumnasUtiles"
+				},
+				{
+					"name": "ColumnasCalculadas"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          numero_ticket as string,",
+				"          agencia_id as integer,",
+				"          fecha_creacion as date,",
+				"          fecha_cierre as date,",
+				"          estado as string,",
+				"          resumen as string,",
+				"          item_id as integer,",
+				"          modo_reporte as string,",
+				"          region as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Tickets",
+				"source(output(",
+				"          atencion_id as integer,",
+				"          numero_ticket as string,",
+				"          tipo_atencion as string,",
+				"          proveedor_id as integer,",
+				"          proveedor as string,",
+				"          unidades as string,",
+				"          costo_atencion as float,",
+				"          numero_os_oc as string,",
+				"          codigo_conformidad as string,",
+				"          zona as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Atenciones",
+				"Tickets, Atenciones join(Tickets@numero_ticket == Atenciones@numero_ticket,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> CombinarTablas",
+				"ColumnasCalculadas select(mapColumn(",
+				"          TicketID = Tickets@numero_ticket,",
+				"          AgenciaID = agencia_id,",
+				"          FechaCreacion = fecha_creacion,",
+				"          FechaCierre = fecha_cierre,",
+				"          Estado = estado,",
+				"          ItemID = item_id,",
+				"          Region = region,",
+				"          AtencionID = atencion_id,",
+				"          TipoAtencion = tipo_atencion,",
+				"          ProveedoID = proveedor_id,",
+				"          CostoAtencion = costo_atencion,",
+				"          Zona = zona,",
+				"          DiasCierre,",
+				"          FechaActualizacion",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnasUtiles",
+				"CombinarTablas derive(DiasCierre = toInteger(fecha_cierre - fecha_creacion),",
+				"          atencion_id = toInteger(atencion_id),",
+				"          proveedor_id = toInteger(proveedor_id),",
+				"          FechaActualizacion = currentTimestamp()) ~> ColumnasCalculadas",
+				"SeleccionarColumnasUtiles sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          TicketID,",
+				"          ItemID,",
+				"          AgenciaID,",
+				"          Estado,",
+				"          FechaCreacion,",
+				"          FechaCierre,",
+				"          DiasCierre,",
+				"          Region,",
+				"          AtencionID,",
+				"          Zona,",
+				"          TipoAtencion,",
+				"          ProveedorID = ProveedoID,",
+				"          CostoAtencion,",
+				"          FechaActualizacion",
+				"     )) ~> FactAtenciones"
+			]
+		}
+	}
+}

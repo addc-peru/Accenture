@@ -1,0 +1,78 @@
+{
+	"name": "ds_adls_tickets_lima",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Lima.csv",
+				"folderPath": "bronze/tickets",
+				"fileSystem": "accenture"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": ""
+		},
+		"schema": [
+			{
+				"name": "Numero Ticket",
+				"type": "String"
+			},
+			{
+				"name": "ItemID",
+				"type": "String"
+			},
+			{
+				"name": "Item",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Creacion",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Termino",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Cierre",
+				"type": "String"
+			},
+			{
+				"name": "Resumen",
+				"type": "String"
+			},
+			{
+				"name": "Ubicacion",
+				"type": "String"
+			},
+			{
+				"name": "Modo Reporte",
+				"type": "String"
+			},
+			{
+				"name": "Estado",
+				"type": "String"
+			},
+			{
+				"name": "Prioridad",
+				"type": "String"
+			},
+			{
+				"name": "Region",
+				"type": "String"
+			},
+			{
+				"name": "FechaImportacion",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

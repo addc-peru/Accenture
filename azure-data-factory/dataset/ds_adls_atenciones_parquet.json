@@ -1,0 +1,67 @@
+{
+	"name": "ds_adls_atenciones_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Atenciones.parquet",
+				"folderPath": "silver",
+				"fileSystem": "accenture"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "atencion_id",
+				"type": "INT32"
+			},
+			{
+				"name": "numero_ticket",
+				"type": "UTF8"
+			},
+			{
+				"name": "tipo_atencion",
+				"type": "UTF8"
+			},
+			{
+				"name": "proveedor_id",
+				"type": "INT32"
+			},
+			{
+				"name": "proveedor",
+				"type": "UTF8"
+			},
+			{
+				"name": "unidades",
+				"type": "UTF8"
+			},
+			{
+				"name": "costo_atencion",
+				"type": "FLOAT"
+			},
+			{
+				"name": "numero_os_oc",
+				"type": "UTF8"
+			},
+			{
+				"name": "codigo_conformidad",
+				"type": "UTF8"
+			},
+			{
+				"name": "zona",
+				"type": "UTF8"
+			},
+			{
+				"name": "fecha_carga",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

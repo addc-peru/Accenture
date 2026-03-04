@@ -1,0 +1,93 @@
+{
+	"name": "ETL Dimensiones",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_agencia",
+						"type": "DatasetReference"
+					},
+					"name": "AgenciasCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_agencias_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "AgenciasParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ColumnasUtiles"
+				},
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AgenciaID as integer,",
+				"          Agencia as string,",
+				"          Region as string,",
+				"          Direccion as string,",
+				"          Distrito as string,",
+				"          Provincia as string,",
+				"          Departamento as string,",
+				"          {Area total (M2)} as string,",
+				"          {Fecha de Apertura} as string,",
+				"          {Tipo Oficina} as string,",
+				"          Visitas as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AgenciasCSV",
+				"derivedColumn1 select(mapColumn(",
+				"          agencia_id = AgenciaID,",
+				"          nombre,",
+				"          region = Region,",
+				"          direccion = Direccion,",
+				"          distrito = derivedColumn1@distrito,",
+				"          provincia = derivedColumn1@provincia,",
+				"          departamento = derivedColumn1@departamento,",
+				"          tipo_oficina,",
+				"          fecha_carga",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"AgenciasCSV derive(nombre = upper( trim( Agencia ) ),",
+				"          distrito = upper( trim( Distrito ) ),",
+				"          provincia = upper( trim( Provincia ) ),",
+				"          departamento = upper( trim( Departamento ) ),",
+				"          tipo_oficina = trim( {Tipo Oficina} ),",
+				"          fecha_carga = currentUTC()) ~> derivedColumn1",
+				"ColumnasUtiles sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          agencia_id as integer,",
+				"          nombre as string,",
+				"          region as string,",
+				"          direccion as string,",
+				"          distrito as string,",
+				"          provincia as string,",
+				"          departamento as string,",
+				"          tipo_oficina as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Agencias.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> AgenciasParquet"
+			]
+		}
+	}
+}

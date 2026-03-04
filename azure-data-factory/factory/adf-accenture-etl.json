@@ -1,0 +1,9 @@
+{
+	"name": "adf-accenture-etl",
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "fc7a5242-a96d-4963-885a-b89d0d4aec87",
+		"tenantId": "7a3c84d9-ed69-46b3-aa1c-52528c88df37"
+	}
+}

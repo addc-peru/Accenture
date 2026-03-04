@@ -1,0 +1,195 @@
+{
+	"name": "ETL Tickets",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_lima",
+						"type": "DatasetReference"
+					},
+					"name": "TicketsLimaCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_provincia",
+						"type": "DatasetReference"
+					},
+					"name": "TicketsProvinciaJSON"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "TicketsParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_item_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ItemParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AsingarTipoDato"
+				},
+				{
+					"name": "SeleccionarColumnas"
+				},
+				{
+					"name": "AnexarDatasets"
+				},
+				{
+					"name": "ColumnasCalculadas"
+				},
+				{
+					"name": "ColumnasUtiles"
+				},
+				{
+					"name": "QuitarItemIDNulos"
+				},
+				{
+					"name": "EtiquetarDatos"
+				},
+				{
+					"name": "ManterUltimoRegistro"
+				},
+				{
+					"name": "ColumnasUtilesItem"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Numero Ticket} as string,",
+				"          ItemID as integer,",
+				"          Item as string,",
+				"          {Fecha Creacion} as date 'yyyy-MM-dd',",
+				"          {Fecha Termino} as date 'dd/MM/yyyy',",
+				"          {Fecha Cierre} as date 'dd-MM-yy',",
+				"          Resumen as string,",
+				"          Ubicacion as string,",
+				"          {Modo Reporte} as string,",
+				"          Estado as string,",
+				"          Prioridad as string,",
+				"          Region as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TicketsLimaCSV",
+				"source(output(",
+				"          NumeroTicket as string,",
+				"          ItemID as integer,",
+				"          Item as string,",
+				"          FechaCreacion as string,",
+				"          FechaTermino as string,",
+				"          FechaCierre as string,",
+				"          Resumen as string,",
+				"          Ubicacion as string,",
+				"          ModoReporte as string,",
+				"          Estado as string,",
+				"          Region as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> TicketsProvinciaJSON",
+				"TicketsProvinciaJSON cast(output(",
+				"          FechaCreacion as date 'yyyy-MM-dd',",
+				"          FechaTermino as date 'dd/MM/yyyy',",
+				"          FechaCierre as date 'dd-MM-yy'",
+				"     ),",
+				"     errors: true) ~> AsingarTipoDato",
+				"TicketsLimaCSV select(mapColumn(",
+				"          NumeroTicket = {Numero Ticket},",
+				"          ItemID,",
+				"          Item,",
+				"          FechaCreacion = {Fecha Creacion},",
+				"          FechaTermino = {Fecha Termino},",
+				"          FechaCierre = {Fecha Cierre},",
+				"          Resumen,",
+				"          Ubicacion,",
+				"          ModoReporte = {Modo Reporte},",
+				"          Estado,",
+				"          Region,",
+				"          FechaImportacion",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnas",
+				"SeleccionarColumnas, AsingarTipoDato union(byName: true)~> AnexarDatasets",
+				"AnexarDatasets derive(fecha_cierre = coalesce(FechaTermino, FechaCierre),",
+				"          estado = iif(Estado == \"Terminado\", \"Cerrado\", Estado),",
+				"          agencia_id = toInteger(trim( substringIndex(Ubicacion, \"-\", -1) )),",
+				"          fecha_carga = currentUTC()) ~> ColumnasCalculadas",
+				"ColumnasCalculadas select(mapColumn(",
+				"          numero_ticket = NumeroTicket,",
+				"          agencia_id,",
+				"          fecha_creacion = FechaCreacion,",
+				"          fecha_cierre,",
+				"          estado = ColumnasCalculadas@estado,",
+				"          resumen = Resumen,",
+				"          item_id = ItemID,",
+				"          modo_reporte = ModoReporte,",
+				"          region = Region,",
+				"          fecha_carga",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"AnexarDatasets filter(not(isNull(ItemID))) ~> QuitarItemIDNulos",
+				"QuitarItemIDNulos window(over(ItemID),",
+				"     desc(FechaCreacion, true),",
+				"     ranking = rowNumber()) ~> EtiquetarDatos",
+				"EtiquetarDatos filter(ranking == 1) ~> ManterUltimoRegistro",
+				"ManterUltimoRegistro select(mapColumn(",
+				"          item_id = ItemID,",
+				"          nombre = Item",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtilesItem",
+				"ColumnasUtiles sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          numero_ticket as string,",
+				"          agencia_id as integer,",
+				"          fecha_creacion as date,",
+				"          fecha_cierre as date,",
+				"          estado as string,",
+				"          resumen as string,",
+				"          item_id as integer,",
+				"          modo_reporte as string,",
+				"          region as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Tickets.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> TicketsParquet",
+				"ColumnasUtilesItem sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          item_id as integer,",
+				"          nombre as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Item.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ItemParquet"
+			]
+		}
+	}
+}

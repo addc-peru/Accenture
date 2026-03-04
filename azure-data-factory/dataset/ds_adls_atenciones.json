@@ -1,0 +1,77 @@
+{
+	"name": "ds_adls_atenciones",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "bronze/atenciones",
+				"fileSystem": "accenture"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": ""
+		},
+		"schema": [
+			{
+				"name": "AtencionID",
+				"type": "String"
+			},
+			{
+				"name": "Numero Ticket",
+				"type": "String"
+			},
+			{
+				"name": "Agencia",
+				"type": "String"
+			},
+			{
+				"name": "Semana Visita",
+				"type": "String"
+			},
+			{
+				"name": "Tipo Atencion",
+				"type": "String"
+			},
+			{
+				"name": "ProveedorID",
+				"type": "String"
+			},
+			{
+				"name": "Proveedor",
+				"type": "String"
+			},
+			{
+				"name": "Unidades",
+				"type": "String"
+			},
+			{
+				"name": "Costo Atencion",
+				"type": "String"
+			},
+			{
+				"name": "Numero OS/OC",
+				"type": "String"
+			},
+			{
+				"name": "Codigo Conformidad",
+				"type": "String"
+			},
+			{
+				"name": "FileName",
+				"type": "String"
+			},
+			{
+				"name": "FechaImportacion",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

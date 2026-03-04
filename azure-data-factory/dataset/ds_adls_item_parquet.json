@@ -1,0 +1,31 @@
+{
+	"name": "ds_adls_item_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Item.parquet",
+				"folderPath": "silver",
+				"fileSystem": "accenture"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "item_id",
+				"type": "INT32"
+			},
+			{
+				"name": "nombre",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,477 @@
+{
+	"name": "gold_layer_historico",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyDimItem",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LimpiarTablasModelo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"additionalColumns": [
+							{
+								"name": "FechaActualizacion",
+								"value": {
+									"value": "@formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "item_id",
+									"type": "Int32",
+									"physicalType": "INT32"
+								},
+								"sink": {
+									"name": "ItemID",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Nombre",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FechaActualizacion",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FechaActualizacion",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_item_parquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_azsql_dimensiones",
+						"type": "DatasetReference",
+						"parameters": {
+							"table_name": "dim_item"
+						}
+					}
+				]
+			},
+			{
+				"name": "CopyDimProveedor",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LimpiarTablasModelo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"additionalColumns": [
+							{
+								"name": "FechaActualizacion",
+								"value": {
+									"value": "@formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "proveedor_id",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "ProveedorID",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Nombre",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FechaActualizacion",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FechaActualizacion",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_proveedor_parquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_azsql_dimensiones",
+						"type": "DatasetReference",
+						"parameters": {
+							"table_name": "dim_proveedor"
+						}
+					}
+				]
+			},
+			{
+				"name": "LoadToFactTable",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "CopyDimItem",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "CopyDimProveedor",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "CopyDimAgencia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "LoadToFactTable",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"FactAtenciones": {
+								"table_name": "fact_atenciones"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "LimpiarTablasModelo",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[clean_dimensional_model]"
+				},
+				"linkedServiceName": {
+					"referenceName": "Cnx_azsql_accenture",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "CopyDimAgencia",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LimpiarTablasModelo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"additionalColumns": [
+							{
+								"name": "FechaActualizacion",
+								"value": {
+									"value": "@formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm:ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "agencia_id",
+									"type": "Int32",
+									"physicalType": "INT32"
+								},
+								"sink": {
+									"name": "AgenciaID",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Nombre",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "region",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Region",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "direccion",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Direccion",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "distrito",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Distrito",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "provincia",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Provincia",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "departamento",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Departamento",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "tipo_oficina",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "TipoOficina",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "FechaActualizacion",
+									"type": "String"
+								},
+								"sink": {
+									"name": "FechaActualizacion",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_agencias_parquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_azsql_dimensiones",
+						"type": "DatasetReference",
+						"parameters": {
+							"table_name": "dim_agencia"
+						}
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-03-04T01:10:55Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

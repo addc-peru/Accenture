@@ -1,0 +1,285 @@
+{
+	"name": "bronze_layer",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Tickets Lima",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "Region",
+								"value": "Lima"
+							},
+							{
+								"name": "FechaImportacion",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_github_tickets_lima",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_tickets_lima",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Tickets Provincia",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"additionalColumns": [
+							{
+								"name": "Region",
+								"value": "Provincia"
+							},
+							{
+								"name": "FechaImportacion",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "setOfObjects"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_github_tickets_provincia",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_tickets_provincia",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copiar Atenciones",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "FileName",
+								"value": "$$FILENAME"
+							},
+							{
+								"name": "FechaImportacion",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "FtpReadSettings",
+							"recursive": true,
+							"wildcardFileName": "Zona*.csv",
+							"enablePartitionDiscovery": false,
+							"useBinaryTransfer": true,
+							"disableChunking": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".csv"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_ftp_atenciones",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_atenciones",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Copy Agencias",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"additionalColumns": [
+							{
+								"name": "FechaImportacion",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_github_agencias",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls_agencia",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-03-03T23:41:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

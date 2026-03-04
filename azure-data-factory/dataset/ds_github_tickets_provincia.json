@@ -1,0 +1,19 @@
+{
+	"name": "ds_github_tickets_provincia",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_Github",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "Tickets/Provincia.json"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

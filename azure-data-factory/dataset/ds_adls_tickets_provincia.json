@@ -1,0 +1,61 @@
+{
+	"name": "ds_adls_tickets_provincia",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Provincia.json",
+				"folderPath": "bronze/tickets",
+				"fileSystem": "accenture"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"NumeroTicket": {
+					"type": "string"
+				},
+				"ItemID": {
+					"type": "integer"
+				},
+				"Item": {
+					"type": "string"
+				},
+				"FechaCreacion": {
+					"type": "string"
+				},
+				"FechaTermino": {
+					"type": "string"
+				},
+				"FechaCierre": {
+					"type": "string"
+				},
+				"Resumen": {
+					"type": "string"
+				},
+				"Ubicacion": {
+					"type": "string"
+				},
+				"ModoReporte": {
+					"type": "string"
+				},
+				"Estado": {
+					"type": "string"
+				},
+				"Region": {
+					"type": "string"
+				},
+				"FechaImportacion": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

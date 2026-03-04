@@ -1,0 +1,138 @@
+{
+	"name": "ETL Atenciones",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_atenciones",
+						"type": "DatasetReference"
+					},
+					"name": "ImportAtenciones"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_atenciones_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "AtencionesParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_proveedor_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ProveedorParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SeleccionarColumnas"
+				},
+				{
+					"name": "ColumnasCalculadas"
+				},
+				{
+					"name": "FiltrarProveedores"
+				},
+				{
+					"name": "ClasificarProveedores"
+				},
+				{
+					"name": "MantenerUltimoRegistro"
+				},
+				{
+					"name": "ColumnasUtilesProveedor"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AtencionID as integer,",
+				"          {Numero Ticket} as string,",
+				"          Agencia as string,",
+				"          {Semana Visita} as string,",
+				"          {Tipo Atencion} as string,",
+				"          ProveedorID as integer,",
+				"          Proveedor as string,",
+				"          Unidades as string,",
+				"          {Costo Atencion} as string,",
+				"          {Numero OS/OC} as string,",
+				"          {Codigo Conformidad} as string,",
+				"          FileName as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> ImportAtenciones",
+				"ImportAtenciones select(mapColumn(",
+				"          atencion_id = AtencionID,",
+				"          numero_ticket = {Numero Ticket},",
+				"          tipo_atencion = {Tipo Atencion},",
+				"          proveedor_id = ProveedorID,",
+				"          proveedor = Proveedor,",
+				"          unidades = Unidades,",
+				"          costo_atencion = {Costo Atencion},",
+				"          numero_os_oc = {Numero OS/OC},",
+				"          codigo_conformidad = {Codigo Conformidad},",
+				"          zona = FileName",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SeleccionarColumnas",
+				"SeleccionarColumnas derive(costo_atencion = toFloat( iif(in([\"COSTO CERO\", \"SIN COSTO\"], upper(trim(costo_atencion))), \"0.0\", trim(replace(costo_atencion, \",\", \".\"))) ),",
+				"          zona = substringIndex(substringIndex(zona, \" \", -1), \".\", 1),",
+				"          fecha_carga = currentUTC()) ~> ColumnasCalculadas",
+				"SeleccionarColumnas filter(not(isNull(proveedor_id))) ~> FiltrarProveedores",
+				"FiltrarProveedores window(over(proveedor_id),",
+				"     desc(atencion_id, false),",
+				"     ranking = rowNumber()) ~> ClasificarProveedores",
+				"ClasificarProveedores filter(ranking == 1) ~> MantenerUltimoRegistro",
+				"MantenerUltimoRegistro select(mapColumn(",
+				"          proveedor_id,",
+				"          nombre = proveedor",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtilesProveedor",
+				"ColumnasCalculadas sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          atencion_id as integer,",
+				"          numero_ticket as string,",
+				"          tipo_atencion as string,",
+				"          proveedor_id as integer,",
+				"          proveedor as string,",
+				"          unidades as string,",
+				"          costo_atencion as float,",
+				"          numero_os_oc as string,",
+				"          codigo_conformidad as string,",
+				"          zona as string,",
+				"          fecha_carga as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Atenciones.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> AtencionesParquet",
+				"ColumnasUtilesProveedor sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          proveedor_id as integer,",
+				"          nombre as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Proveedor.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ProveedorParquet"
+			]
+		}
+	}
+}

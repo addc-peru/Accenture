@@ -1,0 +1,76 @@
+{
+	"name": "Pipeline ETL Atenciones",
+	"properties": {
+		"activities": [
+			{
+				"name": "Bronze Layer",
+				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "bronze_layer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Gold Layer",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Silver Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "gold_layer_historico",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Silver Layer",
+				"type": "ExecutePipeline",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Bronze Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "silver_layer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-03-04T01:10:55Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
