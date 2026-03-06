@@ -1,13 +1,13 @@
 {
 	"name": "Cnx_github_sales_store",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"annotations": [],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/addc-peru/SalesStore/refs/heads/ComprasIncremental/",
+			"url": "https://github.com/addc-peru/SalesStore/tree/main/compras/",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
