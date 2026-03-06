@@ -29,6 +29,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "ComparParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_clientes_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ClientesParquet"
 				}
 			],
 			"transformations": [
@@ -46,6 +53,15 @@
 				},
 				{
 					"name": "ColumnasUtiles"
+				},
+				{
+					"name": "IdentificarDuplicados"
+				},
+				{
+					"name": "QuitarDuplicados"
+				},
+				{
+					"name": "ColumnasCliente"
 				}
 			],
 			"scriptLines": [
@@ -135,8 +151,6 @@
 				"          fecha_envio = FechaEnvio,",
 				"          estado = ColumnasCalculadas@estado,",
 				"          cliente_id,",
-				"          nombre_cliente,",
-				"          tipo_cliente = TipoCliente,",
 				"          vendedor = Vendedor,",
 				"          departamento = Departamento,",
 				"          metodo_pago = MetodoPago,",
@@ -145,6 +159,17 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"ColumnasCalculadas window(over(cliente_id),",
+				"     desc(FechaOrden, false),",
+				"     ranking = rowNumber()) ~> IdentificarDuplicados",
+				"IdentificarDuplicados filter(ranking == 1) ~> QuitarDuplicados",
+				"QuitarDuplicados select(mapColumn(",
+				"          cliente_id,",
+				"          nombre_completo = nombre_cliente,",
+				"          tipo_cliente = TipoCliente",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasCliente",
 				"ColumnasUtiles sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -154,7 +179,17 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> ComparParquet"
+				"     partitionBy('hash', 1)) ~> ComparParquet",
+				"ColumnasCliente sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Clientes.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ClientesParquet"
 			]
 		}
 	}

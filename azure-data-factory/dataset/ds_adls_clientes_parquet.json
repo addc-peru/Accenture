@@ -1,0 +1,24 @@
+{
+	"name": "ds_adls_clientes_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_sales_store",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Dataset Sales Store"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Clientes.parquet",
+				"folderPath": "silver",
+				"fileSystem": "sales-store"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

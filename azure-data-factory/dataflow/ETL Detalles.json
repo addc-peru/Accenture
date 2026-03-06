@@ -22,6 +22,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "DetallesParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_productos_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ProductosParquet"
 				}
 			],
 			"transformations": [
@@ -30,6 +37,15 @@
 				},
 				{
 					"name": "ColumnasCalculadas"
+				},
+				{
+					"name": "IdentificarDuplicados"
+				},
+				{
+					"name": "QuitarDuplicados"
+				},
+				{
+					"name": "ColumnasCliente"
 				}
 			],
 			"scriptLines": [
@@ -53,17 +69,12 @@
 				"     wildcardPaths:['*.csv']) ~> BaseDetalles",
 				"ColumnasCalculadas select(mapColumn(",
 				"          detalle_id = Detalle_ID,",
-				"          tienda,",
 				"          factura = BaseDetalles@Factura,",
-				"          num_tracking = Num_Tracking,",
-				"          categoria = Categoria,",
-				"          subcategoria = Subcategoria,",
+				"          tienda,",
 				"          producto_id = Producto_ID,",
-				"          producto = Producto,",
 				"          unidades = Unidades,",
 				"          precio_unitario = Precio_Unitario,",
 				"          subtotal,",
-				"          oferta_id = Oferta_ID,",
 				"          fecha_hora_carga",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
@@ -72,6 +83,18 @@
 				"          subtotal = round(Unidades * Precio_Unitario, 4),",
 				"          tienda = trim(substringIndex(nombre_archivo, \".\", 1)),",
 				"          fecha_hora_carga = currentUTC()) ~> ColumnasCalculadas",
+				"BaseDetalles window(over(Producto_ID),",
+				"     desc(Detalle_ID, true),",
+				"     ranking = rowNumber()) ~> IdentificarDuplicados",
+				"IdentificarDuplicados filter(ranking == 1) ~> QuitarDuplicados",
+				"QuitarDuplicados select(mapColumn(",
+				"          producto_id = Producto_ID,",
+				"          nombre = Producto,",
+				"          subcategoria = Subcategoria,",
+				"          categoria = Categoria",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasCliente",
 				"SeleccionarColumnas sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -81,7 +104,15 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> DetallesParquet"
+				"     partitionBy('hash', 1)) ~> DetallesParquet",
+				"ColumnasCliente sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ProductosParquet"
 			]
 		}
 	}
