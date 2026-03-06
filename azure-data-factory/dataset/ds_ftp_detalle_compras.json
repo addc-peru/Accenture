@@ -13,7 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "FtpServerLocation",
-				"folderPath": "SalesStore/DetalleIncremental"
+				"folderPath": "SalesStore/DetalleCompras"
 			},
 			"columnDelimiter": "|",
 			"escapeChar": "\\",

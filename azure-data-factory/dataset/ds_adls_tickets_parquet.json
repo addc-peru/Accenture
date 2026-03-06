@@ -1,0 +1,62 @@
+{
+	"name": "ds_adls_tickets_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Tickets.parquet",
+				"folderPath": "silver",
+				"fileSystem": "accenture"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "numero_ticket",
+				"type": "UTF8"
+			},
+			{
+				"name": "agencia_id",
+				"type": "INT32"
+			},
+			{
+				"name": "fecha_creacion",
+				"type": "DATE"
+			},
+			{
+				"name": "fecha_cierre",
+				"type": "DATE"
+			},
+			{
+				"name": "estado",
+				"type": "UTF8"
+			},
+			{
+				"name": "resumen",
+				"type": "UTF8"
+			},
+			{
+				"name": "item_id",
+				"type": "INT32"
+			},
+			{
+				"name": "modo_reporte",
+				"type": "UTF8"
+			},
+			{
+				"name": "region",
+				"type": "UTF8"
+			},
+			{
+				"name": "fecha_carga",
+				"type": "INT96"
+			}
+		]
+	}
+}
