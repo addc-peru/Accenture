@@ -1,0 +1,149 @@
+{
+	"name": "ETL Fact Compras",
+	"properties": {
+		"folder": {
+			"name": "Dataflow Sales Store"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_compras_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Compras"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_detalles_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Detalles"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_azsql_tablas",
+						"type": "DatasetReference"
+					},
+					"name": "FactCompras"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Ultimos30Dias"
+				},
+				{
+					"name": "CombinarDatos"
+				},
+				{
+					"name": "ColumnasUtiles"
+				},
+				{
+					"name": "Registros"
+				},
+				{
+					"name": "FechaActualizacion"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     fecha_inicio as string (\"2025-06-01\"),",
+				"     fecha_fin as string (\"2025-06-30\")",
+				"}",
+				"source(output(",
+				"          venta_id as integer,",
+				"          factura as string,",
+				"          fecha_orden as date,",
+				"          fecha_entrega as date,",
+				"          fecha_envio as date,",
+				"          estado as string,",
+				"          cliente_id as integer,",
+				"          vendedor as string,",
+				"          departamento as string,",
+				"          metodo_pago as string,",
+				"          tipo_compra as string,",
+				"          fecha_hora_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Compras",
+				"source(output(",
+				"          detalle_id as integer,",
+				"          factura as string,",
+				"          tienda as string,",
+				"          producto_id as integer,",
+				"          unidades as integer,",
+				"          precio_unitario as float,",
+				"          subtotal as float,",
+				"          fecha_hora_carga as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Detalles",
+				"Compras filter(between(fecha_orden, toDate($fecha_inicio), toDate($fecha_fin))) ~> Ultimos30Dias",
+				"Ultimos30Dias, Detalles join(Compras@factura == Detalles@factura,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> CombinarDatos",
+				"CombinarDatos select(mapColumn(",
+				"          venta_id,",
+				"          factura = Compras@factura,",
+				"          fecha_orden,",
+				"          fecha_entrega,",
+				"          fecha_envio,",
+				"          estado,",
+				"          cliente_id,",
+				"          vendedor,",
+				"          departamento,",
+				"          metodo_pago,",
+				"          tipo_compra,",
+				"          detalle_id,",
+				"          tienda,",
+				"          producto_id,",
+				"          unidades,",
+				"          subtotal",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ColumnasUtiles",
+				"FechaActualizacion alterRow(upsertIf(true())) ~> Registros",
+				"ColumnasUtiles derive(fecha_actualizacion = currentTimestamp()) ~> FechaActualizacion",
+				"Registros sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['detalle_id'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          venta_id,",
+				"          factura,",
+				"          fecha_orden,",
+				"          fecha_entrega,",
+				"          fecha_envio,",
+				"          estado,",
+				"          cliente_id,",
+				"          vendedor,",
+				"          departamento,",
+				"          metodo_pago,",
+				"          tipo_compra,",
+				"          detalle_id,",
+				"          tienda,",
+				"          producto_id,",
+				"          unidades,",
+				"          subtotal,",
+				"          fecha_actualizacion",
+				"     )) ~> FactCompras"
+			]
+		}
+	}
+}

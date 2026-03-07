@@ -1,0 +1,331 @@
+{
+	"name": "03_Gold_Layer",
+	"properties": {
+		"activities": [
+			{
+				"name": "Incremental Fact Compras",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Variable Fecha Inicio",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "ETL Fact Compras",
+						"type": "DataFlowReference",
+						"parameters": {
+							"fecha_inicio": {
+								"value": "'@{variables('fecha_inicio')}'",
+								"type": "Expression"
+							},
+							"fecha_fin": {
+								"value": "'@{variables('fecha_fin')}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"FactCompras": {
+								"TableName": "fact_compras"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SCD Dimension Cliente",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"cliente_id"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "cliente_id",
+									"type": "Int32",
+									"physicalType": "INT32"
+								},
+								"sink": {
+									"name": "cliente_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre_completo",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "tipo_cliente",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "tipo_cliente",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_clientes_parquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_azsql_tablas",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "dim_cliente"
+						}
+					}
+				]
+			},
+			{
+				"name": "SCD Dimension Producto",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"producto_id"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "producto_id",
+									"type": "Int32",
+									"physicalType": "INT32"
+								},
+								"sink": {
+									"name": "producto_id",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "subcategoria",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "subcategoria",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "categoria",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "categoria",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls_productos_parquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_azsql_tablas",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "dim_producto"
+						}
+					}
+				]
+			},
+			{
+				"name": "Variable Fecha Fin",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SCD Dimension Producto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SCD Dimension Cliente",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fecha_fin",
+					"value": {
+						"value": "\"2025-06-30\"",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Variable Fecha Inicio",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Variable Fecha Fin",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fecha_inicio",
+					"value": {
+						"value": "\"2025-06-01\"",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"fecha_inicio": {
+				"type": "String"
+			},
+			"fecha_fin": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Sales Store ETL"
+		},
+		"annotations": []
+	}
+}

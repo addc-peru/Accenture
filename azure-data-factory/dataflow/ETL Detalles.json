@@ -9,7 +9,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "ds_adls_detalle_compras",
+						"referenceName": "ds_adls_detalle",
 						"type": "DatasetReference"
 					},
 					"name": "BaseDetalles"
@@ -65,8 +65,7 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     wildcardPaths:['*.csv']) ~> BaseDetalles",
+				"     ignoreNoFilesFound: false) ~> BaseDetalles",
 				"ColumnasCalculadas select(mapColumn(",
 				"          detalle_id = Detalle_ID,",
 				"          factura = BaseDetalles@Factura,",
@@ -97,6 +96,16 @@
 				"     skipDuplicateMapOutputs: true) ~> ColumnasCliente",
 				"SeleccionarColumnas sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     input(",
+				"          detalle_id as integer,",
+				"          factura as string,",
+				"          tienda as string,",
+				"          producto_id as integer,",
+				"          unidades as integer,",
+				"          precio_unitario as float,",
+				"          subtotal as float,",
+				"          fecha_hora_carga as timestamp",
+				"     ),",
 				"     format: 'parquet',",
 				"     partitionFileNames:['Detalles.parquet'],",
 				"     umask: 0022,",
@@ -107,12 +116,20 @@
 				"     partitionBy('hash', 1)) ~> DetallesParquet",
 				"ColumnasCliente sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     input(",
+				"          producto_id as integer,",
+				"          nombre as string,",
+				"          subcategoria as string,",
+				"          categoria as string",
+				"     ),",
 				"     format: 'parquet',",
+				"     partitionFileNames:['Productos.parquet'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> ProductosParquet"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> ProductosParquet"
 			]
 		}
 	}

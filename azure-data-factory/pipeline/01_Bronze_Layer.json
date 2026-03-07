@@ -114,7 +114,8 @@
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "JsonWriteSettings"
+							"type": "JsonWriteSettings",
+							"filePattern": "setOfObjects"
 						}
 					},
 					"enableStaging": false
@@ -202,7 +203,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "ds_adls_detalle_compras",
+						"referenceName": "ds_adls_detalle",
 						"type": "DatasetReference"
 					}
 				]

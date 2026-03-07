@@ -1,0 +1,27 @@
+{
+	"name": "ds_azsql_tablas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_sql_sales_store",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Dataset Sales Store"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
+		}
+	}
+}

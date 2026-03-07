@@ -159,7 +159,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "02_Silver_layer",
+						"referenceName": "02_Silver_Layer",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true

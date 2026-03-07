@@ -19,7 +19,56 @@
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "venta_id",
+				"type": "INT32"
+			},
+			{
+				"name": "factura",
+				"type": "UTF8"
+			},
+			{
+				"name": "fecha_orden",
+				"type": "DATE"
+			},
+			{
+				"name": "fecha_entrega",
+				"type": "DATE"
+			},
+			{
+				"name": "fecha_envio",
+				"type": "DATE"
+			},
+			{
+				"name": "estado",
+				"type": "UTF8"
+			},
+			{
+				"name": "cliente_id",
+				"type": "INT32"
+			},
+			{
+				"name": "vendedor",
+				"type": "UTF8"
+			},
+			{
+				"name": "departamento",
+				"type": "UTF8"
+			},
+			{
+				"name": "metodo_pago",
+				"type": "UTF8"
+			},
+			{
+				"name": "tipo_compra",
+				"type": "UTF8"
+			},
+			{
+				"name": "fecha_hora_carga",
+				"type": "INT96"
+			}
+		]
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }

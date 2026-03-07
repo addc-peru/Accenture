@@ -19,7 +19,40 @@
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "detalle_id",
+				"type": "INT32"
+			},
+			{
+				"name": "factura",
+				"type": "UTF8"
+			},
+			{
+				"name": "tienda",
+				"type": "UTF8"
+			},
+			{
+				"name": "producto_id",
+				"type": "INT32"
+			},
+			{
+				"name": "unidades",
+				"type": "INT32"
+			},
+			{
+				"name": "precio_unitario",
+				"type": "FLOAT"
+			},
+			{
+				"name": "subtotal",
+				"type": "FLOAT"
+			},
+			{
+				"name": "fecha_hora_carga",
+				"type": "INT96"
+			}
+		]
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }
