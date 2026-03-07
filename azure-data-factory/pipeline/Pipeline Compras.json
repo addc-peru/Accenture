@@ -127,34 +127,8 @@
 				}
 			},
 			{
-				"name": "Actualizar Fecha Evaluacion",
-				"type": "SetVariable",
-				"dependsOn": [
-					{
-						"activity": "Bronze Layer",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "fecha_evaluacion",
-					"value": {
-						"value": "2025-06-16",
-						"type": "Expression"
-					}
-				}
-			},
-			{
 				"name": "Bronze Layer",
 				"type": "ExecutePipeline",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"secureInput": false
@@ -173,7 +147,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Actualizar Fecha Evaluacion",
+						"activity": "Bronze Layer",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -188,13 +162,7 @@
 						"referenceName": "02_Silver_layer",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"fecha": {
-							"value": "@variables('fecha_evaluacion')",
-							"type": "Expression"
-						}
-					}
+					"waitOnCompletion": true
 				}
 			}
 		],

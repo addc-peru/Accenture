@@ -1,6 +1,9 @@
 {
 	"name": "LoadToFactTable",
 	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

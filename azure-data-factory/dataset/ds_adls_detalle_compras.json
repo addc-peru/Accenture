@@ -5,12 +5,6 @@
 			"referenceName": "Cnx_adls_sales_store",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"FileName": {
-				"type": "string",
-				"defaultValue": "Amazon.csv"
-			}
-		},
 		"folder": {
 			"name": "Dataset Sales Store"
 		},
@@ -19,10 +13,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": {
-					"value": "@dataset().FileName",
-					"type": "Expression"
-				},
 				"folderPath": "bronze/detalles",
 				"fileSystem": "sales-store"
 			},

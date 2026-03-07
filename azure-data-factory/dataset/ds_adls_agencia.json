@@ -5,6 +5,9 @@
 			"referenceName": "Cnx_adls_accenture",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Dataset Atenciones"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {

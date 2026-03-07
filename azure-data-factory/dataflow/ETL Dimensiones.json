@@ -1,6 +1,9 @@
 {
 	"name": "ETL Dimensiones",
 	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

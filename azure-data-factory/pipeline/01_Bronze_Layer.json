@@ -203,13 +203,7 @@
 				"outputs": [
 					{
 						"referenceName": "ds_adls_detalle_compras",
-						"type": "DatasetReference",
-						"parameters": {
-							"FileName": {
-								"value": "@coalesce(null)",
-								"type": "Expression"
-							}
-						}
+						"type": "DatasetReference"
 					}
 				]
 			}

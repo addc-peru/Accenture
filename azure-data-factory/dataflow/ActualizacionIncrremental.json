@@ -1,6 +1,9 @@
 {
 	"name": "ActualizacionIncrremental",
 	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

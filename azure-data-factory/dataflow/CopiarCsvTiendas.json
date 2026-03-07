@@ -1,6 +1,9 @@
 {
 	"name": "CopiarCsvTiendas",
 	"properties": {
+		"folder": {
+			"name": "Dataflow Atenciones"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

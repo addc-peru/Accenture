@@ -15,6 +15,9 @@
 				"defaultValue": "Zona Centro.json"
 			}
 		},
+		"folder": {
+			"name": "Dataset Atenciones"
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {

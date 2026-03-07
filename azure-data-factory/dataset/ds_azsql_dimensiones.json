@@ -11,6 +11,9 @@
 				"defaultValue": "dim_item"
 			}
 		},
+		"folder": {
+			"name": "Dataset Atenciones"
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [],

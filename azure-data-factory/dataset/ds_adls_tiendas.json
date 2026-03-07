@@ -15,6 +15,9 @@
 				"defaultValue": "Tienda Walmart.csv"
 			}
 		},
+		"folder": {
+			"name": "Dataset Atenciones"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
