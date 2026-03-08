@@ -50,8 +50,8 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     fecha_inicio as string (\"2025-06-01\"),",
-				"     fecha_fin as string (\"2025-06-30\")",
+				"     fecha_inicio as string ('2025-06-01'),",
+				"     fecha_fin as string ('2025-06-30')",
 				"}",
 				"source(output(",
 				"          venta_id as integer,",
