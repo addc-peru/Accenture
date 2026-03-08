@@ -1,5 +1,5 @@
 {
-	"name": "ETL Fact Compras",
+	"name": "ETLFactCompras",
 	"properties": {
 		"folder": {
 			"name": "Dataflow Sales Store"
@@ -123,26 +123,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          venta_id,",
-				"          factura,",
-				"          fecha_orden,",
-				"          fecha_entrega,",
-				"          fecha_envio,",
-				"          estado,",
-				"          cliente_id,",
-				"          vendedor,",
-				"          departamento,",
-				"          metodo_pago,",
-				"          tipo_compra,",
-				"          detalle_id,",
-				"          tienda,",
-				"          producto_id,",
-				"          unidades,",
-				"          subtotal,",
-				"          fecha_actualizacion",
-				"     )) ~> FactCompras"
+				"     errorHandlingOption: 'stopOnFirstError') ~> FactCompras"
 			]
 		}
 	}

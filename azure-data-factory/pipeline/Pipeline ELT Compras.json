@@ -1,5 +1,5 @@
 {
-	"name": "Pipeline Compras",
+	"name": "Pipeline ELT Compras",
 	"properties": {
 		"activities": [
 			{
@@ -164,14 +164,31 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "Gold_Layer",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Silver Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "03_Gold_Layer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
-		"variables": {
-			"fecha_evaluacion": {
-				"type": "String",
-				"defaultValue": "2025-06-01"
-			}
-		},
 		"folder": {
 			"name": "Sales Store ETL"
 		},

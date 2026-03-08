@@ -3,56 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Incremental Fact Compras",
-				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "Variable Fecha Inicio",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"dataflow": {
-						"referenceName": "ETL Fact Compras",
-						"type": "DataFlowReference",
-						"parameters": {
-							"fecha_inicio": {
-								"value": "'@{variables('fecha_inicio')}'",
-								"type": "Expression"
-							},
-							"fecha_fin": {
-								"value": "'@{variables('fecha_fin')}'",
-								"type": "Expression"
-							}
-						},
-						"datasetParameters": {
-							"FactCompras": {
-								"TableName": "fact_compras"
-							}
-						}
-					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
-				}
-			},
-			{
 				"name": "SCD Dimension Cliente",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -153,8 +105,6 @@
 			{
 				"name": "SCD Dimension Producto",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -316,6 +266,52 @@
 						"value": "\"2025-06-01\"",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "Actualizacion Incremental",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Variable Fecha Inicio",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "ETLFactCompras",
+						"type": "DataFlowReference",
+						"parameters": {
+							"fecha_inicio": {
+								"value": "'@{variables('fecha_inicio')}'",
+								"type": "Expression"
+							},
+							"fecha_fin": {
+								"value": "'@{variables('fecha_fin')}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"FactCompras": {
+								"TableName": "fact_compras"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
 				}
 			}
 		],
