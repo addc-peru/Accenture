@@ -1,0 +1,20 @@
+{
+	"name": "ds_adls_tickets_provincia",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Cnx_adls_accenture",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Provincia.json",
+				"folderPath": "landing/tickets",
+				"fileSystem": "accenture"
+			}
+		},
+		"schema": {}
+	}
+}
