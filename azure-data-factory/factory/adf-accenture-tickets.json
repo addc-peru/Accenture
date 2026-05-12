@@ -1,0 +1,15 @@
+{
+	"name": "adf-accenture-tickets",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "eastus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "671f971b-16ca-4d24-8b96-80b5bb633210",
+		"tenantId": "7a3c84d9-ed69-46b3-aa1c-52528c88df37"
+	}
+}
