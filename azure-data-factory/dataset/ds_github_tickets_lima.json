@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "/Tickets/Lima.csv"
+				"relativeUrl": "tickets/Lima.csv"
 			},
 			"columnDelimiter": ";",
 			"escapeChar": "\\",
