@@ -5,6 +5,8 @@
 			{
 				"name": "Copy Tickets Lima",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -75,6 +77,8 @@
 			{
 				"name": "Copy Tickets Provincia",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -122,6 +126,8 @@
 			{
 				"name": "Copiar Atenciones",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -180,6 +186,49 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Job ELT Atenciones",
+				"type": "DatabricksJob",
+				"dependsOn": [
+					{
+						"activity": "Copy Tickets Lima",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copy Tickets Provincia",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copiar Atenciones",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"jobId": "338510766486824",
+					"jobParameters": {
+						"tipo_carga": "Incremental",
+						"fecha_actual": "2025-10-30"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "Databricks",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": [],
