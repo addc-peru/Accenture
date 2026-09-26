@@ -21,7 +21,55 @@
 		},
 		"schema": [
 			{
-				"name": "AtencionID|Numero Ticket|Agencia|Semana Visita|Tipo Atencion|ProveedorID|Proveedor|Unidades|Costo Atencion|Numero OS/OC|Codigo Conformidad",
+				"name": "Numero Ticket",
+				"type": "String"
+			},
+			{
+				"name": "ItemID",
+				"type": "String"
+			},
+			{
+				"name": "Item",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Creacion",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Termino",
+				"type": "String"
+			},
+			{
+				"name": "Fecha Cierre",
+				"type": "String"
+			},
+			{
+				"name": "Resumen",
+				"type": "String"
+			},
+			{
+				"name": "Ubicacion",
+				"type": "String"
+			},
+			{
+				"name": "Modo Reporte",
+				"type": "String"
+			},
+			{
+				"name": "Estado",
+				"type": "String"
+			},
+			{
+				"name": "Prioridad",
+				"type": "String"
+			},
+			{
+				"name": "Region",
+				"type": "String"
+			},
+			{
+				"name": "FechaImportacion",
 				"type": "String"
 			}
 		]
