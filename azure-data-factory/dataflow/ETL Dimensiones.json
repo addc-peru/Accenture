@@ -29,7 +29,7 @@
 					"name": "ColumnasUtiles"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "DerivedColumn"
 				}
 			],
 			"scriptLines": [
@@ -50,14 +50,14 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> AgenciasCSV",
-				"derivedColumn1 select(mapColumn(",
+				"DerivedColumn select(mapColumn(",
 				"          agencia_id = AgenciaID,",
 				"          nombre,",
 				"          region = Region,",
 				"          direccion = Direccion,",
-				"          distrito = derivedColumn1@distrito,",
-				"          provincia = derivedColumn1@provincia,",
-				"          departamento = derivedColumn1@departamento,",
+				"          distrito = DerivedColumn@distrito,",
+				"          provincia = DerivedColumn@provincia,",
+				"          departamento = DerivedColumn@departamento,",
 				"          tipo_oficina,",
 				"          fecha_carga",
 				"     ),",
@@ -68,7 +68,7 @@
 				"          provincia = upper( trim( Provincia ) ),",
 				"          departamento = upper( trim( Departamento ) ),",
 				"          tipo_oficina = trim( {Tipo Oficina} ),",
-				"          fecha_carga = currentUTC()) ~> derivedColumn1",
+				"          fecha_carga = currentUTC()) ~> DerivedColumn",
 				"ColumnasUtiles sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -89,6 +89,17 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          agencia_id,",
+				"          nombre,",
+				"          region,",
+				"          direccion,",
+				"          distrito,",
+				"          provincia,",
+				"          departamento,",
+				"          tipo_oficina,",
+				"          fecha_carga",
+				"     ),",
 				"     partitionBy('hash', 1)) ~> AgenciasParquet"
 			]
 		}
