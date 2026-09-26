@@ -1,0 +1,155 @@
+{
+	"name": "ETL_Tickets",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_lima",
+						"type": "DatasetReference"
+					},
+					"name": "TicketsLima"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_provincia",
+						"type": "DatasetReference"
+					},
+					"name": "TicketsProvincia"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_tickets_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Tickets"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ConvertDataType"
+				},
+				{
+					"name": "ChangeNameColumns"
+				},
+				{
+					"name": "ChangeNamesColumns"
+				},
+				{
+					"name": "AppendTickets"
+				},
+				{
+					"name": "DerivedColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Numero Ticket} as string,",
+				"          ItemID as integer,",
+				"          Item as string,",
+				"          {Fecha Creacion} as date 'yyyy-MM-dd',",
+				"          {Fecha Termino} as date 'dd/MM/yyyy',",
+				"          {Fecha Cierre} as date 'dd-MM-yy',",
+				"          Resumen as string,",
+				"          Ubicacion as string,",
+				"          {Modo Reporte} as string,",
+				"          Estado as string,",
+				"          Prioridad as integer,",
+				"          Region as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> TicketsLima",
+				"source(output(",
+				"          NumeroTicket as string,",
+				"          ItemID as string,",
+				"          Item as string,",
+				"          FechaCreacion as string,",
+				"          FechaTermino as string,",
+				"          FechaCierre as string,",
+				"          Resumen as string,",
+				"          Ubicacion as string,",
+				"          ModoReporte as string,",
+				"          Estado as string,",
+				"          Region as string,",
+				"          FechaImportacion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> TicketsProvincia",
+				"TicketsProvincia cast(output(",
+				"          ItemID as integer,",
+				"          FechaCreacion as date 'yyyy-MM-dd',",
+				"          FechaTermino as date 'dd/MM/yyyy',",
+				"          FechaCierre as date 'dd-MM-yy'",
+				"     ),",
+				"     errors: true) ~> ConvertDataType",
+				"TicketsLima select(mapColumn(",
+				"          ticket_id = {Numero Ticket},",
+				"          item_id = ItemID,",
+				"          item = Item,",
+				"          fecha_creacion = {Fecha Creacion},",
+				"          fecha_termino = {Fecha Termino},",
+				"          fecha_cierre = {Fecha Cierre},",
+				"          resumen = Resumen,",
+				"          ubicacion = Ubicacion,",
+				"          modo_reporte = {Modo Reporte},",
+				"          estado = Estado,",
+				"          prioridad = Prioridad,",
+				"          region = Region",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChangeNameColumns",
+				"ConvertDataType select(mapColumn(",
+				"          ticket_id = NumeroTicket,",
+				"          item_id = ItemID,",
+				"          item = Item,",
+				"          fecha_creacion = FechaCreacion,",
+				"          fecha_termino = FechaTermino,",
+				"          fecha_cierre = FechaCierre,",
+				"          resumen = Resumen,",
+				"          ubicacion = Ubicacion,",
+				"          modo_reporte = ModoReporte,",
+				"          estado = Estado,",
+				"          region = Region",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChangeNamesColumns",
+				"ChangeNameColumns, ChangeNamesColumns union(byName: true)~> AppendTickets",
+				"AppendTickets derive(item = trim( upper( item ) ),",
+				"          fecha_cierre_real = iifNull(fecha_termino, fecha_cierre),",
+				"          agencia_id = coalesce( toInteger(trim( substringIndex(ubicacion, \"-\", -1))), 999999 ),",
+				"          estado = iif(equals(estado, \"Terminado\"), \"Cerrado\", estado),",
+				"          fecha_actualizacion = fromUTC(currentUTC(), 'America/Lima')) ~> DerivedColumns",
+				"DerivedColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          ticket_id,",
+				"          agencia_id,",
+				"          item_id,",
+				"          fecha_creacion,",
+				"          fecha_termino,",
+				"          fecha_cierre,",
+				"          fecha_cierre_real,",
+				"          resumen,",
+				"          modo_reporte,",
+				"          estado,",
+				"          prioridad,",
+				"          region,",
+				"          fecha_actualizacion",
+				"     )) ~> Tickets"
+			]
+		}
+	}
+}
