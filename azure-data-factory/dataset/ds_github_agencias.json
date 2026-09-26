@@ -14,7 +14,7 @@
 			"sheetName": "Hoja1",
 			"location": {
 				"type": "HttpServerLocation",
-				"relativeUrl": "Complementario/Agencias.xlsx"
+				"relativeUrl": "complementario/Agencias.xlsx"
 			},
 			"firstRowAsHeader": true
 		},
