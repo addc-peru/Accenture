@@ -15,6 +15,46 @@
 				"fileSystem": "accenture"
 			}
 		},
-		"schema": {}
+		"schema": {
+			"type": "object",
+			"properties": {
+				"NumeroTicket": {
+					"type": "string"
+				},
+				"ItemID": {
+					"type": "string"
+				},
+				"Item": {
+					"type": "string"
+				},
+				"FechaCreacion": {
+					"type": "string"
+				},
+				"FechaTermino": {
+					"type": "string"
+				},
+				"FechaCierre": {
+					"type": "string"
+				},
+				"Resumen": {
+					"type": "string"
+				},
+				"Ubicacion": {
+					"type": "string"
+				},
+				"ModoReporte": {
+					"type": "string"
+				},
+				"Estado": {
+					"type": "string"
+				},
+				"Region": {
+					"type": "string"
+				},
+				"FechaImportacion": {
+					"type": "string"
+				}
+			}
+		}
 	}
 }
